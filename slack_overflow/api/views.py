@@ -3,21 +3,24 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import permissions
 
-from core.models import Card
+from core.models import Issue
 from . import serializers
 
-class CardList(APIView):
+class IssueList(APIView):
     """
-    List all cards, or create new one.
+    List all issues, or create new one.
     """
     def get(self, request):
-        cards = Card.objects.all()
-        serializer = serializers.CardSerializer(cards, many=True)
+        issues = Issue.objects.all()
+        serializer = serializers.IssueSerializer(issues, many=True)
         return Response(serializer.data)
     
     def post(self, request):
-        serializer = serializers.CardSerializer(data=request.data)
+        serializer = serializers.IssueSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+

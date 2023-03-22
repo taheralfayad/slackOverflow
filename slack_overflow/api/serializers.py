@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from core.models import Card
+from core.models import Issue
 
-class CardSerializer(serializers.ModelSerializer):
+class IssueSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Card
-        fields = ["created", "text", "author", "project"]
+        model = Issue
+        fields = ["created", "text", "author", "project_id"]
 
