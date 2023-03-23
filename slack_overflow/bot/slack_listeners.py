@@ -1,18 +1,26 @@
+import logging
 import os
-import sqlite3
-# Use the package we installed
-from slack_bolt import App
-from slack_bolt.adapter.socket_mode import SocketModeHandler
+import requests
+import json
 from dotenv import load_dotenv
+
+from slack_bolt import App
 
 directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 load_dotenv(os.path.join(directory, '.env'))
 
-# Initializes your app with your bot token and signing secret
+logger = logging.getLogger(__name__)
+
 app = App(
-    token=os.environ.get("BOT_TOKEN"),
-    signing_secret=os.environ.get("SLACK_SIGNING_SECRET")
+    token=os.environ["SLACK_BOT_TOKEN"],
+    signing_secret=os.environ["SLACK_SIGNING_SECRET"],
+    token_verification_enabled=False,
 )
+
+@app.event("app_mention")
+def handle_app_mentions(logger, event, say):
+    logger.info(event)
+    say(f"Hi there, <@{event['user']}>")
 
 # Add functionality here
 # @app.event("app_home_opened") etc
@@ -20,6 +28,10 @@ app = App(
 def message_hello(message, say):
     # say() sends a message to the channel where the event was triggered
     say(f"Hey there <@{message['user']}>!")
+
+@app.message()
+def ignore(message, say):
+    1 + 1
 
 @app.message("button")
 def message_button(message, say):
@@ -44,17 +56,51 @@ def action_button_click(body, ack, say):
     ack()
     say(f"<@{body['user']['id']}> clicked the button")
 
+@app.command("/addproject")
+def project_command(ack, say, respond, command):
+    ack()
+
+    error = False
+
+    array = command['text'].replace(" ", "").lower()
+
+    object = {
+        'name': array
+    }
+
+    post = requests.post(os.environ['SITE_URL'] + "/projects", json=object)
+
+    respond(f'Successfully created project `{array}`.')
+
 # Command that adds an issue to the database
 # I don't think this should be the name personally
-# Format: "/summarize [project] [issue title] [description]"
+# Format: "/issue [project] [issue title] [description]"
 @app.command("/issue")
 def issue_command(ack, say, respond, command):
     # Acknowledge command request first:
     ack()
 
-    projectId = command['text']
+    error = False
 
-    if 'error' in command['text']:
+    # array: ["projectId ", "issue title", " ", "issue description"]
+    array = command['text'].split('"')
+
+    if len(array) >= 4:
+        object = {
+            'project': array[0].strip().lower(),
+            'title': array[1].title(),
+            'description': array[3],
+            'author': command['user_id']
+        }
+
+        post = requests.post(os.environ['SITE_URL'] + f"/projects/{object['project']}/issues", json=object)
+        response = json.loads(post.text)
+    
+    else:
+        error = True
+
+    if error == True:
+        projectId = command['text']
         if projectId == "":
             projectId = "projectId"
         blocks = [
@@ -74,7 +120,7 @@ def issue_command(ack, say, respond, command):
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": "User posted a new issue for Ableplayer\n*<localhost.com|Why is my Docker not working????>*"
+                    "text": f"User posted a new issue for {response['project']}\n*<localhost.com|{response['title']}>*"
                 }
             },
             {
@@ -82,11 +128,15 @@ def issue_command(ack, say, respond, command):
                 "fields": [
                     {
                         "type": "mrkdwn",
-                        "text": "*Project:*\nAbleplayer"
+                        "text": f"*Project:*\n{response['project']}"
                     },
                     {
                         "type": "mrkdwn",
-                        "text": "*User*\n<@U024BE7LH>"
+                        "text": f"*Issue Id:*\n{response['id']}"
+                    },
+                    {
+                        "type": "mrkdwn",
+                        "text": f"*User*\n<@{command['user_id']}>"
                     },
                     {
                         "type": "mrkdwn",
@@ -115,13 +165,61 @@ def issue_command(ack, say, respond, command):
 
 # Command that adds an answer to an issue on the database
 # Temporary name for now
-# Format: "/answer [project] [issue] [description]"
+# Format: "/answer [issue] [description]"
 @app.command("/answer")
-def answer_command(ack, say, command):
+def answer_command(ack, say, respond, command):
     # Acknowledge command request first:
     ack()
-    # Then respond
-    app.client.chat_update(f"{command['text']}")
+
+    error = False
+    # array: ["issueId ", "answer description", ""]
+    array = command['text'].split('"')
+    
+    # Validate
+    validObject = {
+        "id": array[0].strip()
+    }
+
+    validGet = requests.get(os.environ['SITE_URL'] + f"/issues/{validObject['id']}", json=validObject)
+    print(validGet.text)
+    issue = json.loads(validGet.text)
+
+    if issue['detail']:
+        error = True
+    if len(array) >= 2 and error == False:
+        object = {
+            "issue": array[0].strip(),
+            "description": array[1],
+            "author": command['user_id'],
+        }
+        post = requests.post(os.environ['SITE_URL'] + f"/issues/{object['issue']}/solutions", json=object)
+        response = json.loads(post.text)
+    else:
+        error = True
+
+    if error == True:
+        blocks = [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+				    "text": f"*ERROR*\n Issue `{validObject['id']}` does not exist."
+			    }
+		    }
+	    ]
+        respond(blocks=blocks, text="Error, issue does not exist.")
+
+    else: 
+        blocks = [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"<@{issue['author']}>, <@{response['author']}> submitted an answer for your {issue['project']} issue\n*<https://localhost:5000|{issue['title']}>*"
+                }
+            }
+        ]
+        say(blocks=blocks, text=f"<@{issue['author']}>, <@{response['author']}> submitted an answer for your {issue['project']} issue\n*<https://localhost:5000|{issue['title']}")
 
 # Command that lists all of the available projects/issues
 # Could be problematic to code, I'm unsure
@@ -141,7 +239,3 @@ def list_command(ack, say, command):
     array = ['j', 'a', 'c', 'o', 'b', ':jacob:']
     for i in range(len(array)):
         say(f"{array[i]}")
-
-# Start your app
-if __name__ == "__main__":
-    SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"]).start()

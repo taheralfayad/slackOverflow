@@ -16,9 +16,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from api import urls as api_urls
+from bot import urls as bot_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(api_urls)),
-    path('website/', include('website.urls'))
+    path('website/', include('website.urls')),
+    path('', include(api_urls)),
+    path('', include(bot_urls))
 ]

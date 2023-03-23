@@ -1,5 +1,10 @@
 from rest_framework import serializers
-from .models import Issue, Solution
+from api.models import Issue, Solution, Project
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ["name", "numIssues"]
 
 class IssueSerializer(serializers.ModelSerializer):
     class Meta:
