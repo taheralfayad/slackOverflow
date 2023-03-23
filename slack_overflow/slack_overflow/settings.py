@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-s9h9yt7k#$)xrp--9k9s(pi*3s*gx4tbxg!qp4m+f_^u$9sfs5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'website',
     'rest_framework',
     'api',
-    'slack_overflow'
+    'slack_overflow',
+    'bot',
 ]
 
 MIDDLEWARE = [

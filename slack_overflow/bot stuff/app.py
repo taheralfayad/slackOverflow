@@ -133,7 +133,7 @@ def list_command(ack, say, command):
     # Then respond
     say(f"{command['text']}")
 
-@app.command("/taher")
+@app.command("/slack/command/taher")
 def list_command(ack, say, command):
     # Acknowledge command request first:
     ack()
@@ -144,4 +144,4 @@ def list_command(ack, say, command):
 
 # Start your app
 if __name__ == "__main__":
-    SocketModeHandler(app, os.environ["SLACK_APP_TOKEN"]).start()
+    app.start(4000)
