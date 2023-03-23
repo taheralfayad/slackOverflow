@@ -21,8 +21,6 @@ class IssueList(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-
 
 class SolutionList(APIView): 
     """
@@ -59,7 +57,7 @@ class ProjectList(APIView):
     def get(self, request, request_project):
         try:
             issues = Issue.objects.filter(project=request_project)
-        except Issue.DoesNoteExist:
+        except Issue.DoesNotExist:
             raise Http404("No issues exist for given project.")
         serializer = serializers.IssueSerializer(issues, many=True)
         return Response(serializer.data) 

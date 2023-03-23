@@ -2,6 +2,7 @@ from django.db import models
 
 class Issue(models.Model):
     created = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=100, default="")
     description = models.CharField(max_length=250)
     author = models.CharField(max_length=100)
     project = models.CharField(max_length=100)

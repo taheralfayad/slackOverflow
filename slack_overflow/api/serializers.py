@@ -4,7 +4,7 @@ from .models import Issue, Solution
 class IssueSerializer(serializers.ModelSerializer):
     class Meta:
         model = Issue
-        fields = ["id", "created", "description", "author", "project"]
+        fields = ["id", "created", "title", "description", "author", "project"]
 
 class SolutionSerializer(serializers.ModelSerializer):
     class Meta:
