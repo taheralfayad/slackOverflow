@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+
+<link 
+    rel="stylesheet"
+    type="text/css"
+    href="{% static 'website/css/bootstrap.css' %}"
+/> 
+
+<script type="text/javascript" src="{% static 'website/js/bootstrap.min.js' %}"></script>
+
+<html>
+<head>
+	<title>Slack Overflow</title>
+	<style>
+
+		.footer {
+			background-color: #333;
+			color: rgb(255, 255, 255);
+			padding: 10px;
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+        }
+        
+        body {
+            background-color: rgba(255, 255, 255, 0.267);
+        }
+
+		.container {
+			margin-top: 50px;
+			margin-bottom: 50px;
+		}
+	</style>
+</head>
+<body>  
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#"><h3>SlackOverflow</h3></a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#"></a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+	
+	<div class="container">
+		<div class="row">
+			<div class="col-md-4">
+				<div class="card bg-dark">
+					<div class="card-body">
+                        <h5 class="card-title" style="color: white;">UDOIT</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="project" value="UDOIT">
+                            <button type="submit" class="btn btn-primary">See issues</button>
+                        </form>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="card bg-dark">
+					<div class="card-body">
+						<h5 class="card-title" style="color: white;">Soulpatch</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="project" value="Soulpatch">
+                            <button type="submit" class="btn btn-primary">See issues</button>
+                        </form>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="card bg-dark">
+					<div class="card-body">
+						<h5 class="card-title" style="color: white;">UCF Here</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="project" value="UCF Here">
+                            <button type="submit" class="btn btn-primary">See issues</button>
+                        </form>
+					</div>
+				</div>
+            </div>
+		</div>
+	</div>
+	
+	<div class="footer">
+		<h4>Designed By: Evan Goldsmith, Zander Preston, Evangelos Kontonotas, and Ahmad Altaher Alfayad</h4>
+	</div>
+
+</body>
+</html>

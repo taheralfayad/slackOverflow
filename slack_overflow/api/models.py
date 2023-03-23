@@ -1,6 +1,7 @@
 from django.db import models
 
 class Issue(models.Model):
+    title = models.CharField(max_length=100, default="")
     created = models.DateTimeField(auto_now_add=True)
     description = models.CharField(max_length=500)
     author = models.CharField(max_length=100)
@@ -12,8 +13,14 @@ class Issue(models.Model):
     def __repr__(self):
         return '<Issue: %r>' % self.project
 
-class Project(models.Model):
-    title = models.CharField(max_length=100)
-    
+class Solution(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    issue = models.ForeignKey('Issue', on_delete=models.CASCADE)
+    description = models.CharField(max_length=500)
+    author = models.CharField(max_length=100)
+
     def __str__(self):
-        return 'Project %s' % self.title
+        return 'Solution for %s' % self.issue
+
+    def __repr__(self):
+        return '<Solution: %r>' % self.issue

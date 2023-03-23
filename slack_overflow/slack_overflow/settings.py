@@ -38,7 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'website',
-    'bootstrap5'
+    'rest_framework',
+    'api',
+    'slack_overflow'
 ]
 
 MIDDLEWARE = [
