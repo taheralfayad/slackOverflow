@@ -74,7 +74,7 @@ def project_command(ack, say, respond, command):
 
 # Command that adds an issue to the database
 # I don't think this should be the name personally
-# Format: "/summarize [project] [issue title] [description]"
+# Format: "/issue [project] [issue title] [description]"
 @app.command("/issue")
 def issue_command(ack, say, respond, command):
     # Acknowledge command request first:

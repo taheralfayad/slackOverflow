@@ -20,11 +20,8 @@ from bot import urls as bot_urls
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-<<<<<<< Updated upstream
     path('api/', include(api_urls)),
-    path('website/', include('website.urls'))
-=======
+    path('website/', include('website.urls')),
     path('', include(api_urls)),
     path('', include(bot_urls))
->>>>>>> Stashed changes
 ]
