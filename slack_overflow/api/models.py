@@ -2,9 +2,9 @@ from django.db import models
 
 class Issue(models.Model):
     created = models.DateTimeField(auto_now_add=True)
-    text = models.CharField(max_length=250)
+    description = models.CharField(max_length=500)
     author = models.CharField(max_length=100)
-    project_id = models.ForeignKey('Project', models.CASCADE)
+    project = models.CharField(max_length=100)
 
     def __str__(self):
         return 'Issue for %s' % self.project
