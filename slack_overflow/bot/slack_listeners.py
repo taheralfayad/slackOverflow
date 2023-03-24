@@ -55,7 +55,7 @@ def action_button_click(body, ack, client, action, logger):
             "callback_id": "answer-modal",
             "title": {
                 "type": "plain_text",
-                "text": f"{issue['title']}",
+                "text": "Answering Issue",
                 "emoji": True
             },
             "submit": {
@@ -70,6 +70,14 @@ def action_button_click(body, ack, client, action, logger):
             },
             "private_metadata": f"{issue['id']}",
             "blocks": [
+        		{
+                    "type": "header",
+                    "text": {
+                        "type": "plain_text",
+                        "text": f"{issue['title']}",
+                        "emoji": True
+			        }
+		        },
                 {
                     "type": "section",
                     "text": {
