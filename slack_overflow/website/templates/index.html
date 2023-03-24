@@ -53,8 +53,8 @@
 	
 	<div class="container">
 		<div class="row">
-			<div class="col-md-4">
-				<div class="card" style="background-color: rgb(188, 211, 238);">
+			<div class="col-md-4" style="padding-bottom: 50px;">
+				<div class="card" style="background-color: rgb(188, 211, 238)">
 					<div class="card-body">
                         <h5 class="card-title">UDOIT</h5>
                         <form method="post">
@@ -88,7 +88,43 @@
                         </form>
 					</div>
 				</div>
-            </div>
+			</div>
+			<div class="col-md-4">
+				<div class="card" style="background-color: rgb(188, 211, 238);">
+					<div class="card-body">
+                        <h5 class="card-title">Captionhub</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="project" value="captionhub">
+                            <button type="submit" class="btn btn-primary">See issues</button>
+                        </form>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="card" style="background-color: rgb(188, 211, 238);">
+					<div class="card-body">
+                        <h5 class="card-title">Materia</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="project" value="materia">
+                            <button type="submit" class="btn btn-primary">See issues</button>
+                        </form>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<div class="card" style="background-color: rgb(188, 211, 238);">
+					<div class="card-body">
+                        <h5 class="card-title">Autocaptioner</h5>
+                        <form method="post">
+                            {% csrf_token %}
+                            <input type="hidden" name="project" value="autocaptioner">
+                            <button type="submit" class="btn btn-primary">See issues</button>
+                        </form>
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 	

@@ -42,7 +42,7 @@
             <h1 style="font-family: Courier New, Courier, monospace; background-color: white;">{{ project }}</h1>
             <ul class="list-group">
                 {% for issue in issues %}
-                <li style="background-color: rgb(188, 211, 238); padding: 10px;" class="list-group-item">
+                <li style="background-color: rgb(188, 211, 238);" class="list-group-item">
                     <p>{{issue.title}}</p>
                     <form method="post">
                       {% csrf_token %}
