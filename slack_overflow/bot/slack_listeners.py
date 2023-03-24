@@ -8,8 +8,9 @@ from slack_bolt import App
 
 directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 load_dotenv(os.path.join(directory, '.env'))
-
 logger = logging.getLogger(__name__)
+
+API_URL = os.environ['SITE_URL'] + '/api'
 
 app = App(
     token=os.environ["SLACK_BOT_TOKEN"],
@@ -17,44 +18,129 @@ app = App(
     token_verification_enabled=False,
 )
 
+@app.middleware
+def log_request(logger, body, next):
+    logger.debug(body)
+    next()
+
 @app.event("app_mention")
 def handle_app_mentions(logger, event, say):
     logger.info(event)
     say(f"Hi there, <@{event['user']}>")
 
-# Add functionality here
-# @app.event("app_home_opened") etc
-@app.message("hello")
-def message_hello(message, say):
-    # say() sends a message to the channel where the event was triggered
-    say(f"Hey there <@{message['user']}>!")
-
 @app.message()
 def ignore(message, say):
-    1 + 1
+    ''
 
-@app.message("button")
-def message_button(message, say):
-    say(
-        blocks=[
-            {
-                "type": "section",
-                "text": {"type": "mrkdwn", "text": f"Hey there <@{message['user']}>!"},
-                "accessory": {
-                    "type": "button",
-                    "text": {"type": "plain_text", "text": "Click Me"},
-                    "action_id": "button_click"
-                }
-            }
-        ],
-        text=f"Hey there <@{message['user']}>!"
-    )
-
-@app.action("button_click")
-def action_button_click(body, ack, say):
+@app.action("answer_button")
+def action_button_click(body, ack, client, action, logger):
     # Acknowledge the action
     ack()
-    say(f"<@{body['user']['id']}> clicked the button")
+
+    object = {
+        'id': action['value'],
+    }
+
+    get = requests.get(API_URL + f"/issues/{object['id']}", json=object)
+    issue = json.loads(get.text)
+
+    print("ANSWER BUTTON\n", action, '\n')
+    
+    res = client.views_open(
+        trigger_id=body["trigger_id"],
+        view = {
+            "type": "modal",
+            "callback_id": "answer-modal",
+            "title": {
+                "type": "plain_text",
+                "text": f"{issue['title']}",
+                "emoji": True
+            },
+            "submit": {
+                "type": "plain_text",
+                "text": "Submit",
+                "emoji": True
+            },
+            "close": {
+                "type": "plain_text",
+                "text": "Cancel",
+                "emoji": True
+            },
+            "private_metadata": f"{issue['id']}",
+            "blocks": [
+                {
+                    "type": "section",
+                    "text": {
+                        "type": "mrkdwn",
+                        "text": f"```{issue['description']}```"
+                    }
+                },
+                {
+                    "type": "input",
+                    "element": {
+                        "type": "plain_text_input",
+                        "multiline": True,
+                        "action_id": "plain_text_input-action"
+                    },
+                    "label": {
+                        "type": "plain_text",
+                        "text": "Answer",
+                        "emoji": True
+                    }
+                },
+                {
+                    "block_id": "conversation",
+                    "type": "input",
+                    "label": {
+                        "type": "plain_text",
+                        "text": "Select a channel to post to"
+                    },
+                    "element": {
+                        "action_id": "conversations_select",
+                        "type": "conversations_select",
+                        "response_url_enabled": True,
+                        "default_to_current_conversation": True
+                    }
+                }
+            ]
+        }
+    )
+    logger.info(res)
+
+@app.view("answer-modal")
+def view_submission(ack, body, respond, view, action, logger, payload):
+    ack()
+
+    issue_id = view['private_metadata']
+    validGet = requests.get(API_URL + f"/issues/{issue_id}", json={ 'id': issue_id })
+    issue = json.loads(validGet.text)
+
+    answer_input = next(iter(view['state']['values'].values()))['plain_text_input-action']['value']
+    author = body["user"]["id"]
+
+    object = {
+            "issue": issue['id'],
+            "description": answer_input,
+            "author": author,
+        }
+    
+    post = requests.post(API_URL + f"/issues/{object['issue']}/solutions", json=object)
+    response = json.loads(post.text)
+
+    object = {
+        "blocks": [
+            {
+                "type": "section",
+                "text": {
+                    "type": "mrkdwn",
+                    "text": f"<@{issue['author']}>, <@{response['author']}> submitted an answer for your {issue['project']} issue\n*<https://localhost:5000|{issue['title']}>*"
+                },
+            }
+        ],
+        "response_type": "in_channel"
+    }
+
+    requests.post(body['response_urls'][0]['response_url'], json=object)
 
 @app.command("/addproject")
 def project_command(ack, say, respond, command):
@@ -68,7 +154,7 @@ def project_command(ack, say, respond, command):
         'name': array
     }
 
-    post = requests.post(os.environ['SITE_URL'] + "/projects", json=object)
+    requests.post(API_URL + "/projects", json=object)
 
     respond(f'Successfully created project `{array}`.')
 
@@ -93,22 +179,24 @@ def issue_command(ack, say, respond, command):
             'author': command['user_id']
         }
 
-        post = requests.post(os.environ['SITE_URL'] + f"/projects/{object['project']}/issues", json=object)
+        post = requests.post(API_URL + f"/projects/{object['project']}/issues", json=object)
         response = json.loads(post.text)
-    
+
+        if 'detail' in response:
+            error = True
     else:
         error = True
 
     if error == True:
-        projectId = command['text']
-        if projectId == "":
-            projectId = "projectId"
+        projectId = object['project']
+        if not projectId:
+            projectId = 'projectId'
         blocks = [
             {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"*ERROR*\n Project `{projectId}` does not exist.\n_Use `/list projects` to retrieve a list of all project ids."
+                    "text": f"*ERROR*\n Project `{projectId}` does not exist.\nUse `/list projects` to retrieve a list of all project ids."
                 }
             }
         ]
@@ -151,11 +239,12 @@ def issue_command(ack, say, respond, command):
                         "type": "button",
                         "text": {
                             "type": "plain_text",
-                            "emoji": True,
-                            "text": "Answer"
+                            "text": "Answer",
+                            "emoji": True
                         },
                         "style": "primary",
-                        "value": "click_me_123"
+                        "value": f"{response['id']}",
+                        "action_id": "answer_button"
                     }
                 ]
             }
@@ -180,8 +269,7 @@ def answer_command(ack, say, respond, command):
         "id": array[0].strip()
     }
 
-    validGet = requests.get(os.environ['SITE_URL'] + f"/issues/{validObject['id']}", json=validObject)
-    print(validGet.text)
+    validGet = requests.get(API_URL + f"/issues/{validObject['id']}", json=validObject)
     issue = json.loads(validGet.text)
 
     if issue['detail']:
@@ -192,7 +280,7 @@ def answer_command(ack, say, respond, command):
             "description": array[1],
             "author": command['user_id'],
         }
-        post = requests.post(os.environ['SITE_URL'] + f"/issues/{object['issue']}/solutions", json=object)
+        post = requests.post(API_URL + f"/issues/{object['issue']}/solutions", json=object)
         response = json.loads(post.text)
     else:
         error = True
@@ -203,10 +291,10 @@ def answer_command(ack, say, respond, command):
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-				    "text": f"*ERROR*\n Issue `{validObject['id']}` does not exist."
-			    }
-		    }
-	    ]
+                    "text": f"*ERROR*\n Issue `{validObject['id']}` does not exist."
+                }
+            }
+        ]
         respond(blocks=blocks, text="Error, issue does not exist.")
 
     else: 
@@ -231,11 +319,9 @@ def list_command(ack, say, command):
     # Then respond
     say(f"{command['text']}")
 
-@app.command("/taher")
-def list_command(ack, say, command):
+@app.command("/jacob")
+def jacob_command(ack, say, command):
     # Acknowledge command request first:
     ack()
     # Then respond
-    array = ['j', 'a', 'c', 'o', 'b', ':jacob:']
-    for i in range(len(array)):
-        say(f"{array[i]}")
+    say(":jacob:")
