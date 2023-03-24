@@ -11,6 +11,8 @@ load_dotenv(os.path.join(directory, '.env'))
 logger = logging.getLogger(__name__)
 
 API_URL = os.environ['SITE_URL'] + '/api'
+WEBSITE_URL = os.environ['SITE_URL'] + '/website'
+
 
 app = App(
     token=os.environ["SLACK_BOT_TOKEN"],
@@ -133,7 +135,7 @@ def view_submission(ack, body, respond, view, action, logger, payload):
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"<@{issue['author']}>, <@{response['author']}> submitted an answer for your {issue['project']} issue\n*<https://localhost:5000|{issue['title']}>*"
+                    "text": f"<@{issue['author']}>, <@{response['author']}> submitted an answer for your {issue['project']} issue\n*<{WEBSITE_URL}/issue/{issue['id']}|{issue['title']}>*"
                 },
             }
         ],
@@ -208,7 +210,7 @@ def issue_command(ack, say, respond, command):
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"User posted a new issue for {response['project']}\n*<localhost.com|{response['title']}>*"
+                    "text": f"User posted a new issue for {response['project']}\n*<{WEBSITE_URL}/issue/{response['id']}|{response['title']}>*"
                 }
             },
             {
@@ -272,7 +274,7 @@ def answer_command(ack, say, respond, command):
     validGet = requests.get(API_URL + f"/issues/{validObject['id']}", json=validObject)
     issue = json.loads(validGet.text)
 
-    if issue['detail']:
+    if 'detail' in issue:
         error = True
     if len(array) >= 2 and error == False:
         object = {
@@ -303,11 +305,11 @@ def answer_command(ack, say, respond, command):
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"<@{issue['author']}>, <@{response['author']}> submitted an answer for your {issue['project']} issue\n*<https://localhost:5000|{issue['title']}>*"
+                    "text": f"<@{issue['author']}>, <@{response['author']}> submitted an answer for your {issue['project']} issue\n*<{WEBSITE_URL}/issue/{issue['id']}|{issue['title']}>*"
                 }
             }
         ]
-        say(blocks=blocks, text=f"<@{issue['author']}>, <@{response['author']}> submitted an answer for your {issue['project']} issue\n*<https://localhost:5000|{issue['title']}")
+        say(blocks=blocks, text=f"<@{issue['author']}>, <@{response['author']}> submitted an answer for your {issue['project']} issue\n*<{WEBSITE_URL}/issue/{issue['id']}|{issue['title']}")
 
 # Command that lists all of the available projects/issues
 # Could be problematic to code, I'm unsure
