@@ -37,7 +37,7 @@
 <body>  
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#"><h3>SlackOverflow</h3></a>
+          <a class="navbar-brand" href="{% url 'index' %}"><h3>SlackOverflow</h3></a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -59,7 +59,7 @@
                         <h5 class="card-title">UDOIT</h5>
                         <form method="post">
                             {% csrf_token %}
-                            <input type="hidden" name="project" value="UDOIT">
+                            <input type="hidden" name="project" value="udoit">
                             <button type="submit" class="btn btn-primary">See issues</button>
                         </form>
 					</div>
@@ -71,7 +71,7 @@
 						<h5 class="card-title">Soulpatch</h5>
                         <form method="post">
                             {% csrf_token %}
-                            <input type="hidden" name="project" value="Soulpatch">
+                            <input type="hidden" name="project" value="soulpatch">
                             <button type="submit" class="btn btn-primary">See issues</button>
                         </form>
 					</div>
@@ -80,10 +80,10 @@
 			<div class="col-md-4">
 				<div class="card" style="background-color: rgb(188, 211, 238);">
 					<div class="card-body">
-						<h5 class="card-title">UCF Here</h5>
+						<h5 class="card-title">Proctorhub</h5>
                         <form method="post">
                             {% csrf_token %}
-                            <input type="hidden" name="project" value="UCF Here">
+                            <input type="hidden" name="project" value="proctorhub">
                             <button type="submit" class="btn btn-primary">See issues</button>
                         </form>
 					</div>

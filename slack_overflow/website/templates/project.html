@@ -27,7 +27,7 @@
   <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container-fluid">
-          <a class="navbar-brand" href="#">SlackOverflow</a>
+          <a class="navbar-brand" href="{% url 'index' %}">SlackOverflow</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -37,20 +37,24 @@
     
 
     <div class="container">
-        <h1 style="font-family: Courier New, Courier, monospace; background-color: white;">{{ project }}</h1>
-        <ul class="list-group">
-            {% for issue in issues %}
-            <li style="background-color: rgb(188, 211, 238); padding: 10px;" class="list-group-item">
-                <p>{{issue.title}}</p>
-                <form method="post">
-                  {% csrf_token %}
-                  <input type="hidden" name="issue" value={{issue.id}}>
-                  <button type="submit" class="btn btn-primary">See issues</button>
-              </form>
-            </li>
-            {% endfor %}
-          </ul>
-    </div>
+        <div class="row">
+          <div class="col-xl">
+            <h1 style="font-family: Courier New, Courier, monospace; background-color: white;">{{ project }}</h1>
+            <ul class="list-group">
+                {% for issue in issues %}
+                <li style="background-color: rgb(188, 211, 238); padding: 10px;" class="list-group-item">
+                    <p>{{issue.title}}</p>
+                    <form method="post">
+                      {% csrf_token %}
+                      <input type="hidden" name="issue" value={{issue.id}}>
+                      <button type="submit" class="btn btn-primary">See issue</button>
+                  </form>
+                </li>
+                {% endfor %}
+              </ul>
+           </div>
+         </div>
+      </div>
 
   </body>
 </html>
