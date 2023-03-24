@@ -18,4 +18,5 @@ def slack_commands_handler(request: HttpRequest):
 urlpatterns = [
     path("slack/events", slack_events_handler, name="slack_events"),
     path("slack/command/", slack_commands_handler, name="slack_command"),
+    path("slack/interactive-endpoint", slack_events_handler, name="slack_endpoint")
 ]
