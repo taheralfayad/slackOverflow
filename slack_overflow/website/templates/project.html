@@ -40,8 +40,13 @@
         <h1 style="font-family: Courier New, Courier, monospace; background-color: white;">{{ project }}</h1>
         <ul class="list-group">
             {% for issue in issues %}
-            <li class="list-group-item bg-success">
-                <p class="text-light">{{issue.description}}</p>
+            <li style="background-color: rgb(188, 211, 238); padding: 10px;" class="list-group-item">
+                <p>{{issue.title}}</p>
+                <form method="post">
+                  {% csrf_token %}
+                  <input type="hidden" name="issue" value={{issue.id}}>
+                  <button type="submit" class="btn btn-primary">See issues</button>
+              </form>
             </li>
             {% endfor %}
           </ul>

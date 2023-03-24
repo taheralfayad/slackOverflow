@@ -14,9 +14,28 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title></title>
     <style>
-        .container {
-			margin-top: 50px;
-			margin-bottom: 50px;
+        .issue {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin-bottom: 20px;
+        background-color: rgb(188, 211, 238);
+        }
+
+        .answers {
+        border: 1px solid #ccc;
+        padding: 10px;
+        background-color: rgb(188, 211, 238);
+        }
+
+        .answer {
+        margin-bottom: 10px;
+        }
+
+        textarea {
+        display: block;
+        width: 100%;
+        padding: 5px;
+        margin-bottom: 10px;
         }
         
         body {
@@ -31,28 +50,28 @@
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
-          <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="#">About</a>
-              </li>
-            </ul>
-          </div>
         </div>
     </nav>
 
-    
-
-    <div class="container">
-        <h1 style="font-family: Courier New, Courier, monospace; background-color: white;">{{ project }}</h1>
-        <ul class="list-group">
-            {% for issue in issues %}
-            <li class="list-group-item bg-success">
-                <p class="text-light">{{issue.description}}</p>
-            </li>
-            {% endfor %}
-          </ul>
-    </div>
+    <div class="issue">
+        <h2>{{issue.title}}</h2>
+        <p><strong>Question:</strong></p>
+        <p>{{issue.description}}</p>
+      </div>
+      <div class="answers">
+        <h3>Answers:</h3>
+        {%for solution in solutions%}
+        <div class="answer">
+          <p><strong>Answer:</strong> {{solution.description}}</p>
+        </div>
+        {% endfor %}
+        <form method="post">
+          {% csrf_token %}
+          <label for="comment">Leave an answer:</label>
+          <textarea id="comment" name="answer"></textarea>
+          <input type="submit" value="Submit">
+        </form>
+      </div>
 
   </body>
 </html>
