@@ -8,8 +8,9 @@ from slack_bolt import App
 
 directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 load_dotenv(os.path.join(directory, '.env'))
-
 logger = logging.getLogger(__name__)
+
+API_URL = os.environ['SITE_URL'] + '/api'
 
 app = App(
     token=os.environ["SLACK_BOT_TOKEN"],
@@ -68,7 +69,7 @@ def project_command(ack, say, respond, command):
         'name': array
     }
 
-    post = requests.post(os.environ['SITE_URL'] + "/projects", json=object)
+    post = requests.post(API_URL + "/projects", json=object)
 
     respond(f'Successfully created project `{array}`.')
 
@@ -93,22 +94,24 @@ def issue_command(ack, say, respond, command):
             'author': command['user_id']
         }
 
-        post = requests.post(os.environ['SITE_URL'] + f"/projects/{object['project']}/issues", json=object)
+        post = requests.post(API_URL + f"/projects/{object['project']}/issues", json=object)
         response = json.loads(post.text)
-    
+
+        if 'detail' in response:
+            error = True
     else:
         error = True
 
     if error == True:
-        projectId = command['text']
-        if projectId == "":
-            projectId = "projectId"
+        projectId = object['project']
+        if not projectId:
+            projectId = 'projectId'
         blocks = [
             {
                 "type": "section",
                 "text": {
                     "type": "mrkdwn",
-                    "text": f"*ERROR*\n Project `{projectId}` does not exist.\n_Use `/list projects` to retrieve a list of all project ids."
+                    "text": f"*ERROR*\n Project `{projectId}` does not exist.\nUse `/list projects` to retrieve a list of all project ids."
                 }
             }
         ]
@@ -180,7 +183,7 @@ def answer_command(ack, say, respond, command):
         "id": array[0].strip()
     }
 
-    validGet = requests.get(os.environ['SITE_URL'] + f"/issues/{validObject['id']}", json=validObject)
+    validGet = requests.get(API_URL + f"/issues/{validObject['id']}", json=validObject)
     print(validGet.text)
     issue = json.loads(validGet.text)
 
@@ -192,7 +195,7 @@ def answer_command(ack, say, respond, command):
             "description": array[1],
             "author": command['user_id'],
         }
-        post = requests.post(os.environ['SITE_URL'] + f"/issues/{object['issue']}/solutions", json=object)
+        post = requests.post(API_URL + f"/issues/{object['issue']}/solutions", json=object)
         response = json.loads(post.text)
     else:
         error = True
